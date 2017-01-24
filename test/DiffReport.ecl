@@ -28,8 +28,6 @@ EXPORT DiffReport := MODULE
   END;
   EXPORT Layout_TestResult := RECORD
     UNSIGNED4           errors;
-    UNSIGNED4           exact;
-    UNSIGNED            small;
     STRING              TestName;
     DATASET(Layout_Diff)samples;
   END;
@@ -49,8 +47,6 @@ EXPORT DiffReport := MODULE
   END;
   Layout_TestResult roll(DATASET(Layout_Diff) dfs, STRING tn) := TRANSFORM
     SELF.TestName := tn;
-    SELF.exact   := COUNT(dfs(msg=''));
-    SELF.small   := COUNT(dfs(msg <> '' AND ABS(diff)<=Epsilon));
     SELF.errors  := COUNT(dfs(ABS(diff)>Epsilon));
     SELF.samples := CHOOSEN(dfs(ABS(diff)>Epsilon), Diffs_Kept);
   END;
