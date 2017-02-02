@@ -1,7 +1,8 @@
 /*############################################################################
 ## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
 ############################################################################## */
-
+IMPORT ML_Core;
+IMPORT ML_Core.Types as MlTypes;
 /**
   * Types for the Parallel Block Basic Linear Algebra Sub-programs support
   * WARNING: attributes marked with WARNING can not be changed without making
@@ -20,7 +21,7 @@ EXPORT Types := MODULE
    /**
     * Type for work-item id -- only supports up to 64K work items
     */
-  EXPORT work_item_t  := UNSIGNED2;
+  EXPORT work_item_t  := MlTypes.t_work_item;
   /**
     * Type for matrix cell values
     * 
