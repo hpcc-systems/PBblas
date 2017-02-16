@@ -103,8 +103,18 @@ test4_1 := dr.Compare_Cells('TEST4_1 -- LU Partitioned+Myriad A1+A2+A4-1', A1, c
 test4_2 := dr.Compare_Cells('TEST4_2 -- LU Partitioned+Myriad A1+A2+A4-2', A2, cmp4_2);
 test4_3 := dr.Compare_Cells('TEST4_3 -- LU Partitioned+Myriad A1+A2+A4-4', A4, cmp4_4);
 
+// Test 5 -- Make sure we don't fail factoring a NULL matrix
+
+null := DATASET([], Layout_Cell);
+A5_factored := PBblas.getrf(null);
+U5 := PBblas.ExtractTri(tri.Upper, diag.NotUnitTri, A5_factored);
+L5 := PBblas.ExtractTri(tri.Lower, diag.UnitTri, A5_factored);
+test5_1 := dr.Compare_Cells('TEST5_1 -- Null input matrix (Upper)', null, U5);
+test5_2 := dr.Compare_Cells('TEST5_2 -- Null input matrix (Lower)', null, L5);
+
 rslt := SORT(test1 + test2
                + test3_1 + test3_2
-               + test4_1 + test4_2 + test4_3, TestName);
+               + test4_1 + test4_2 + test4_3
+               + test5_1 + test5_2, TestName);
 
 EXPORT getrf := WHEN(rslt, override);

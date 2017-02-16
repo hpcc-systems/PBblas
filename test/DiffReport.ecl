@@ -24,6 +24,7 @@ EXPORT DiffReport := MODULE
     value_t             v1;
     value_t             v2;
     value_t             diff;
+    value_t             pctDiff;
     STRING              msg;
   END;
   EXPORT Layout_TestResult := RECORD
@@ -38,31 +39,36 @@ EXPORT DiffReport := MODULE
     difference      := s.v - t.v;
     SELF.cell_row   := IF(s.x>0, s.x, t.y);
     SELF.cell_col   := IF(s.y>0, s.y, t.y);
-    SELF.diff       := difference / s.v;
+    SELF.diff       := difference;
+    SELF.pctDiff    := ABS(difference / s.v);
     SELF.v1         := s.v;
     SELF.v2         := t.v;
-    SELF.msg        := MAP(difference=0     => '',
-                           s.x = t.x        => Text_Diff_Different,
-                           s.x = 0          => Text_Diff_Added,
-                           t.x = 0          => Text_Diff_Missing,
+    SELF.msg        := MAP(difference=0              => '',
+                           s.x = t.x                 => Text_Diff_Different,
+                           s.x = 0 AND ABS(t.x) > epsilon => Text_Diff_Added,
+                           t.x = 0 AND ABS(s.x) > epsilon => Text_Diff_Missing,
                            Text_Diff_Unknown);
   END;
   Layout_TestResult roll(DATASET(Layout_Diff) dfs, STRING tn) := TRANSFORM
     SELF.TestName := tn;
     SELF.exact   := COUNT(dfs(msg=''));
-    SELF.small   := COUNT(dfs(msg <> '' AND ABS(diff)<=Epsilon));
-    SELF.errors  := COUNT(dfs(ABS(diff)>Epsilon));
-    SELF.samples := CHOOSEN(dfs(ABS(diff)>Epsilon), Diffs_Kept);
+    SELF.small   := COUNT(dfs(msg <> '' AND (ABS(diff)<=Epsilon) OR (v1 <= epsilon AND v2 <= Epsilon) OR (pctDiff <= Epsilon)));
+    SELF.errors  := COUNT(dfs(ABS(diff)>Epsilon AND (ABS(v1) > Epsilon OR ABS(v2) > Epsilon) AND (pctDiff > Epsilon)));
+    SELF.samples := CHOOSEN(dfs(ABS(diff)>Epsilon AND (ABS(v1) > Epsilon OR ABS(v2) > Epsilon) AND (pctDiff > Epsilon)), Diffs_Kept);
   END;
   EXPORT Compare_Cells(STRING testName,
                        DATASET(Layout_Cell) std,
                        DATASET(Layout_Cell) tst) := FUNCTION
+
     d0 := JOIN(std, tst,
                LEFT.x=RIGHT.x AND LEFT.y=RIGHT.y,
                cmpr(LEFT, RIGHT), FULL OUTER);
     d1 := GROUP(d0, TRUE) : ONWARNING(2029, ignore);
     r1 := ROLLUP(d1, GROUP, roll(ROWS(LEFT), testName));
-    RETURN r1;
+    // If both inputs were empty, return an empty record.  Otherwise, no record will be generated
+    // for that test.
+    nullCompare := DATASET([{0,0,0, testName, DATASET([], Layout_Diff)}],Layout_TestResult);
+    RETURN IF(NOT EXISTS(std) AND NOT EXISTS(tst), nullCompare, r1);
   END;
   EXPORT Compare_Parts(STRING testName,
                        DATASET(Layout_Part) std,

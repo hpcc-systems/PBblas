@@ -141,10 +141,10 @@ EXPORT MatDims := MODULE
       // matrix partitioning calculations, and return a combined record with all
       // of the calculation results.
       dims3 do_work_item(Layout_Dims parent, DATASET(Layout_Dims) children) := TRANSFORM
-    	  emptyC  := DATASET([{'C', parent.wi_id, 0, 0}], Layout_Dims)[1];
-    	  Adims   := children[1];
-    	  Bdims   := children[2];
-    	  Cdims   := IF(COUNT(children) > 2, children[3], emptyC);
+        emptyDim  := DATASET([{'C', parent.wi_id, 0, 0}], Layout_Dims)[1];
+        Adims   := IF(EXISTS(children(m_label='A')), children(m_label='A')[1], emptyDim);
+        Bdims   := IF(EXISTS(children(m_label='B')), children(m_label='B')[1], emptyDim);
+        Cdims   := IF(EXISTS(children(m_label='C')), children(m_label='C')[1], emptyDim);
     	  N       := MAX([Adims.m_rows, Cdims.m_rows]);
     	  M       := MAX([Adims.m_cols, Bdims.m_rows]);
     	  P       := MAX([Bdims.m_cols, Cdims.m_cols]);
@@ -203,9 +203,9 @@ EXPORT MatDims := MODULE
       // matrix partitioning calculations, and return a combined record with all
       // of the calculation results.
       dims2 do_work_item(Layout_Dims parent, DATASET(Layout_Dims) children) := TRANSFORM
-        emptyC := DATASET([{'C', parent.wi_id, 0, 0}], Layout_Dims)[1];
-        Adims := children[1];
-        Bdims := children[2];
+        emptyDim := DATASET([{'C', parent.wi_id, 0, 0}], Layout_Dims)[1];
+        Adims   := IF(EXISTS(children(m_label='A')), children(m_label='A')[1], emptyDim);
+        Bdims   := IF(EXISTS(children(m_label='B')), children(m_label='B')[1], emptyDim);
         // Normalize N and M so that N is always A's size, and M is the remaining side of B
         N_Ax := MAX([Adims.m_rows, Adims.m_cols, Bdims.m_rows]);
         N_xA := MAX([Adims.m_rows, Adims.m_cols, Bdims.m_cols]);
