@@ -10,6 +10,7 @@ IMPORT int.Types as iTypes;
 IMPORT Tests.DiffReport as dr;
 tri := Types.triangle;
 matrix_t := iTypes.matrix_t;
+Layout_Cell := Types.Layout_Cell;
 
 // Override BlockDimensions parameters to test with smaller matrixes
 max_partition_size_or := 1000;
@@ -83,8 +84,16 @@ test36 := dr.Compare_Cells('TEST3 -- Cholesky U3TU2_2', A2, U3TU3_2);
 test37 := dr.Compare_Cells('TEST3 -- Cholesky L3L3t_2', A2, L3L3t_2);
 test38 := dr.Compare_Cells('TEST3 -- Cholesky U3tL3t_2', A2, U3tL3t_2);
 
+// TEST 4 -- Check null input
+null := DATASET([], Layout_Cell);
+U4 := PBblas.potrf(tri.Upper, null);
+L4 := PBblas.potrf(tri.Lower, null);
+test41 := dr.Compare_Cells('TEST4 -- Null input matrix (Upper)', A2, L3L3t_2);
+test42 := dr.Compare_Cells('TEST4 -- Null input matrix (Lower)', A2, U3tL3t_2);
+
 rslt := SORT(test11 + test12 + test13 + test14
       + test21 + test22 + test23 + test24
-      + test31 + test32 + test33 + test34 + test35 + test36 + test37 + test38, TestName);
+      + test31 + test32 + test33 + test34 + test35 + test36 + test37 + test38
+      + test41 + test42, TestName);
 
 EXPORT potrf := WHEN(rslt, override);
