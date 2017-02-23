@@ -107,7 +107,7 @@ test_cases := DATASET([
   // Tiny matrix, should only have one partition
   {'Tiny', FALSE, FALSE, alpha, 5, 5, 5, TRUE, beta, dense, dense, dense},
   // Zero A
-  //{'ZeroA', FALSE, FALSE, alpha, 31, 39, 11, TRUE, beta, 0.0, dense, dense} // Exception!!
+  {'ZeroA', FALSE, FALSE, alpha, 31, 39, 11, TRUE, beta, 0.0, dense, dense},
   // Zero B
   {'ZeroB', FALSE, FALSE, alpha, 31, 39, 11, FALSE, beta, sparse, 0.0, sparse},
   // Zero A and B

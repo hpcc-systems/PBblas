@@ -18,6 +18,7 @@ Diagonal := Types.Diagonal;
 Upper  := Triangle.Upper;
 Lower  := Triangle.Lower;
 Layout_Part := iTypes.Layout_Part;
+Layout_Cell := Types.Layout_Cell;
 Side := Types.Side;
 
 // Override BlockDimensions defaults to allow test with smaller matrixes
@@ -52,7 +53,7 @@ C_S1 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.NotUnitTri,
                       1.0, C_L1, E1);
 C_T1 := PBblas.trsm(Side.Ax, Upper, TRUE, Diagonal.NotUnitTri,
                       1.0, C_L1, C_S1);
-test_11 := Tests.DiffReport.Compare_Cells('TEST1_1 -- Ax Single, Cholesky', X1, C_T1);
+test_11 := Tests.DiffReport.Compare_Cells('TEST01_1 -- Ax Single, Cholesky', X1, C_T1);
 
 // Solve AX using LU factorization
 E_LU1:= PBBlas.getrf(A1);
@@ -60,7 +61,7 @@ E_S1 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
                       1.0, E_LU1, E1);
 E_T1 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU1, E_S1);
-test_12 := Tests.DiffReport.Compare_Cells('TEST1_2 -- Ax Single, LU', X1, E_T1);
+test_12 := Tests.DiffReport.Compare_Cells('TEST01_2 -- Ax Single, LU', X1, E_T1);
 
 // Solve XA using LU
 F_LU1:= E_LU1;
@@ -68,7 +69,7 @@ F_S1 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, F_LU1, F1);
 F_T1 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, F_LU1, F_S1);
-test_13:=Tests.DiffReport.Compare_Cells('TEST1_3 -- xA Single, LU', X1_T, F_T1);
+test_13:=Tests.DiffReport.Compare_Cells('TEST01_3 -- xA Single, LU', X1_T, F_T1);
 
 // Note: Detailed comments omitted on subsequent tests as they all follow the same pattern
 
@@ -96,21 +97,21 @@ C_S2 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.NotUnitTri,
                       1.0, C_L2, E2);
 C_T2 := PBblas.trsm(Side.Ax, Upper, TRUE, Diagonal.NotUnitTri,
                       1.0, C_L2, C_S2);
-test_21 := Tests.DiffReport.Compare_Cells('TEST2_1 -- Ax 2 x 2, Cholesky', X2, C_T2);
+test_21 := Tests.DiffReport.Compare_Cells('TEST02_1 -- Ax 2 x 2, Cholesky', X2, C_T2);
 
 E_LU2:= PBBlas.getrf(A2);
 E_S2 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
                       1.0, E_LU2, E2);
 E_T2 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU2, E_S2);
-test_22 := Tests.DiffReport.Compare_Cells('TEST2_1 -- Ax 2 x 2, LU', X2, E_T2);
+test_22 := Tests.DiffReport.Compare_Cells('TEST02_1 -- Ax 2 x 2, LU', X2, E_T2);
 //
 F_LU2:= E_LU2;
 F_S2 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, F_LU2, F2);
 F_T2 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, F_LU2, F_S2);
-test_23:=Tests.DiffReport.Compare_Cells('TEST2_3 -- xA 2 x 2, LU', X2_T, F_T2);
+test_23:=Tests.DiffReport.Compare_Cells('TEST02_3 -- xA 2 x 2, LU', X2_T, F_T2);
 
 // TEST 3 -- Myriad
 // Combine the small matrixes from Test 1 with the large from Test 2 to solve both simultaneously.
@@ -125,8 +126,8 @@ C_T3 := PBblas.trsm(Side.Ax, Upper, TRUE, Diagonal.NotUnitTri,
 C_T3_1 := C_T3(wi_id = 1);
 C_T3_2 := C_T3(wi_id = 2);
 
-test_31 := Tests.DiffReport.Compare_Cells('TEST3_1 -- Ax Partitioned+Myr(1), Cholesky', X1, C_T3_1);
-test_32 := Tests.DiffReport.Compare_Cells('TEST3_2 -- Ax Partitioned+Myr(2), Cholesky', X2, C_T3_2);
+test_31 := Tests.DiffReport.Compare_Cells('TEST03_1 -- Ax Partitioned+Myr(1), Cholesky', X1, C_T3_1);
+test_32 := Tests.DiffReport.Compare_Cells('TEST03_2 -- Ax Partitioned+Myr(2), Cholesky', X2, C_T3_2);
 
 E_LU3:= E_LU2 + E_LU1; 
 E_S3 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
@@ -135,8 +136,8 @@ E_T3 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU3, E_S3);
 E_T3_1 := E_T3(wi_id = 1);
 E_T3_2 := E_T3(wi_id = 2);                      
-test_33 := Tests.DiffReport.Compare_Cells('TEST3_3 -- Ax Partitioned+Myr(2)_1, LU', X1, E_T3_1);
-test_34 := Tests.DiffReport.Compare_Cells('TEST3_4 -- Ax Partitioned+Myr(2)_2, LU', X2, E_T3_2);
+test_33 := Tests.DiffReport.Compare_Cells('TEST03_3 -- Ax Partitioned+Myr(2)_1, LU', X1, E_T3_1);
+test_34 := Tests.DiffReport.Compare_Cells('TEST03_4 -- Ax Partitioned+Myr(2)_2, LU', X2, E_T3_2);
 //
 F_LU3 := E_LU3;
 F_S3 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
@@ -145,8 +146,8 @@ F_T3 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, F_LU1 + F_LU2, F_S3);
 F_T3_1 := F_T3(wi_id = 1);
 F_T3_2 := F_T3(wi_id = 2);   
-test_35 := Tests.DiffReport.Compare_Cells('TEST3_5 -- xA Partitioned+Myr(2)_1, LU', X1_T, F_T3_1);
-test_36 := Tests.DiffReport.Compare_Cells('TEST3_6 -- xA Partitioned+Myr(2)_2, LU', X2_T, F_T3_2);                      
+test_35 := Tests.DiffReport.Compare_Cells('TEST03_5 -- xA Partitioned+Myr(2)_1, LU', X1_T, F_T3_1);
+test_36 := Tests.DiffReport.Compare_Cells('TEST03_6 -- xA Partitioned+Myr(2)_2, LU', X2_T, F_T3_2);
 
 // TEST 4 -- Larger 3 x 3 matrix
 N4 := 71;  // Should give us 9 A partitions (3 x 3)
@@ -168,14 +169,14 @@ E_S4 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
                       1.0, E_LU4, E4);
 Solve_41 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU4, E_S4);
-test_41 := Tests.DiffReport.Compare_Cells('TEST4_1 -- Ax 3 x 3', X4, Solve_41);
+test_41 := Tests.DiffReport.Compare_Cells('TEST04_1 -- Ax 3 x 3', X4, Solve_41);
 
 F_LU4:= E_LU4;
 F_S4 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, F_LU4, F4);
 Solve_42 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, F_LU4, F_S4);
-test_42 := Tests.DiffReport.Compare_Cells('TEST4_2 -- xA 3 x 3', X4_T, Solve_42);
+test_42 := Tests.DiffReport.Compare_Cells('TEST04_2 -- xA 3 x 3', X4_T, Solve_42);
         
 // TEST 5 -- Myriad 2
 // Test Ax with four simultaneous work-items using matrices of varying shape.                        
@@ -199,13 +200,13 @@ E_S5 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
 Solve_5 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU1 + E_LU2 + E_LU4 + E_LU5, E_S5);
 Solve_5_1 := Solve_5(wi_id=1);
-test_51 := Tests.DiffReport.Compare_Cells('TEST5_1 -- Ax Myriad(4)_1', X1, Solve_5_1);             
+test_51 := Tests.DiffReport.Compare_Cells('TEST05_1 -- Ax Myriad(4)_1', X1, Solve_5_1);
 Solve_5_2 := Solve_5(wi_id=2);
-test_52 := Tests.DiffReport.Compare_Cells('TEST5_2 -- Ax Myriad(4)_2', X2, Solve_5_2);     
+test_52 := Tests.DiffReport.Compare_Cells('TEST05_2 -- Ax Myriad(4)_2', X2, Solve_5_2);
 Solve_5_4 := Solve_5(wi_id=4);
-test_54 := Tests.DiffReport.Compare_Cells('TEST5_4 -- Ax Myriad(4)_4', X4, Solve_5_4);
+test_54 := Tests.DiffReport.Compare_Cells('TEST05_4 -- Ax Myriad(4)_4', X4, Solve_5_4);
 Solve_5_5 := Solve_5(wi_id=5);
-test_55 := Tests.DiffReport.Compare_Cells('TEST5_5 -- Ax Myriad(4)_5', X5, Solve_5_5);
+test_55 := Tests.DiffReport.Compare_Cells('TEST05_5 -- Ax Myriad(4)_5', X5, Solve_5_5);
 
 // TEST 6 -- Same as test 5, but for xA
 
@@ -215,17 +216,17 @@ F_S6 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
 Solve_6 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, F_LU1 + F_LU2 + F_LU4 + F_LU5, F_S6);
 Solve_6_1 := Solve_6(wi_id=1);
-test_61 := Tests.DiffReport.Compare_Cells('TEST6_1 -- xA Myriad(4)_1', X1_T, Solve_6_1);             
+test_61 := Tests.DiffReport.Compare_Cells('TEST06_1 -- xA Myriad(4)_1', X1_T, Solve_6_1);
 Solve_6_2 := Solve_6(wi_id=2);
-test_62 := Tests.DiffReport.Compare_Cells('TEST6_2 -- xA Myriad(4)_2', X2_T, Solve_6_2);     
+test_62 := Tests.DiffReport.Compare_Cells('TEST06_2 -- xA Myriad(4)_2', X2_T, Solve_6_2);
 Solve_6_4 := Solve_6(wi_id=4);
-test_64 := Tests.DiffReport.Compare_Cells('TEST6_4 -- xA Myriad(4)_4', X4_T, Solve_6_4);
+test_64 := Tests.DiffReport.Compare_Cells('TEST06_4 -- xA Myriad(4)_4', X4_T, Solve_6_4);
 Solve_6_5 := Solve_6(wi_id=5);
-test_65 := Tests.DiffReport.Compare_Cells('TEST6_5 -- xA Myriad(4)_5', X5_T, Solve_6_5);
+test_65 := Tests.DiffReport.Compare_Cells('TEST06_5 -- xA Myriad(4)_5', X5_T, Solve_6_5);
 
 // TEST 7 -- Ax -- Use A2 and A5 to mix it up, and use alpha and transpose to cover the rest of the
 //           features.
-alpha := 1.0;
+alpha := -1.5;
 transA := FALSE;
 
 A7 := A2 + A5;
@@ -250,8 +251,8 @@ Solve_7 := PBblas.trsm(Side.Ax, Upper, transA, Diagonal.NotUnitTri,
 Solve_7_2 := Solve_7(wi_id=2);
 Solve_7_5 := Solve_7(wi_id=5);
 // Verify that the result equals the original X
-test_72 := Tests.DiffReport.Compare_Cells('TEST7_2 -- Ax Myr+alpha+trans', X2, Solve_7_2);
-test_75 := Tests.DiffReport.Compare_Cells('TEST7_5 -- Ax Myr+alpha+trans', X5, Solve_7_5);
+test_72 := Tests.DiffReport.Compare_Cells('TEST07_2 -- Ax Myr+alpha+trans', X2, Solve_7_2);
+test_75 := Tests.DiffReport.Compare_Cells('TEST07_5 -- Ax Myr+alpha+trans', X5, Solve_7_5);
 
 // TEST 8 -- xA -- Same as TEST 7 except solving for XA
  
@@ -268,8 +269,8 @@ Solve_8 := PBblas.trsm(Side.xA, Lower, transA, Diagonal.UnitTri,
                       1.0, F_LU8_t, F_S8);
 Solve_8_2 := Solve_8(wi_id=2);
 Solve_8_5 := Solve_8(wi_id=5);
-test_82 := Tests.DiffReport.Compare_Cells('TEST8_2 -- xA Myr+alpha+trans', X2_T, Solve_8_2);
-test_85 := Tests.DiffReport.Compare_Cells('TEST8_5 -- xA Myr+alpha+trans', X5_T, Solve_8_5);
+test_82 := Tests.DiffReport.Compare_Cells('TEST08_2 -- xA Myr+alpha+trans', X2_T, Solve_8_2);
+test_85 := Tests.DiffReport.Compare_Cells('TEST08_5 -- xA Myr+alpha+trans', X5_T, Solve_8_5);
 
 // TEST 9 -- Safety test -- Compare PB_Blas results with Blas results, using alpha and
 //           transpose
@@ -299,10 +300,10 @@ S2 := PBblas.trsm(Side.Ax, Upper, transA, Diagonal.NotUnitTri,
 blas_cells := int.FromR8Set(blas_S2, N5);
 blas_S1_cells := int.FromR8Set(blas_S1, N5);
 
-test_91 := Tests.DiffReport.Compare_Cells('TEST9_1 -- Ax Blas vs X5',blas_cells, X5);
-test_92 := Tests.DiffReport.Compare_Cells('TEST9_2 -- Ax PB_Blas vs X5',S2, X5);
-test_93 := Tests.DiffReport.Compare_Cells('TEST9_3 -- Ax PB_Blas vs blas ',S2, blas_cells);
-test_94 := Tests.DiffReport.Compare_Cells('TEST9_4 -- Ax S1 vs Blas_S1 ',S1, blas_S1_cells);
+test_91 := Tests.DiffReport.Compare_Cells('TEST09_1 -- Ax Blas vs X5',blas_cells, X5);
+test_92 := Tests.DiffReport.Compare_Cells('TEST09_2 -- Ax PB_Blas vs X5',S2, X5);
+test_93 := Tests.DiffReport.Compare_Cells('TEST09_3 -- Ax PB_Blas vs blas ',S2, blas_cells);
+test_94 := Tests.DiffReport.Compare_Cells('TEST09_4 -- Ax S1 vs Blas_S1 ',S1, blas_S1_cells);
 
 // Now the same for XA
 F_LU5_t := E_LU5_t;
@@ -329,10 +330,45 @@ S2_2 := PBblas.trsm(Side.xA, Lower, transA, Diagonal.UnitTri,
 blas_cells_2 := int.FromR8Set(blas_S2_2, M5);
 blas_S1_cells_2 := int.FromR8Set(blas_S1_2, M5);
 
-test_95 := Tests.DiffReport.Compare_Cells('TEST9_5 -- xA Blas vs X5',blas_cells_2, X5_T);
-test_96 := Tests.DiffReport.Compare_Cells('TEST9_6 -- xA PB_Blas vs X5',S2_2, X5_T);
-test_97 := Tests.DiffReport.Compare_Cells('TEST9_7 -- xA PB_Blas vs blas ',S2_2, blas_cells_2);
-test_98 := Tests.DiffReport.Compare_Cells('TEST9_9 -- xA S1 vs Blas_S1 ',S1_2, blas_S1_cells_2);
+test_95 := Tests.DiffReport.Compare_Cells('TEST09_5 -- xA Blas vs X5',blas_cells_2, X5_T);
+test_96 := Tests.DiffReport.Compare_Cells('TEST09_6 -- xA PB_Blas vs X5',S2_2, X5_T);
+test_97 := Tests.DiffReport.Compare_Cells('TEST09_7 -- xA PB_Blas vs blas ',S2_2, blas_cells_2);
+test_98 := Tests.DiffReport.Compare_Cells('TEST09_9 -- xA S1 vs Blas_S1 ',S1_2, blas_S1_cells_2);
+
+// Test 10 -- Test with null matrixes for A and / or B
+// Use A1 from Test 1
+
+null := DATASET([], Layout_Cell);
+// Solve AX = null
+
+E_S10 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
+                      1.0, E_LU1, null);
+E_T10 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
+                      1.0, E_LU1, E_S10);
+test_101 := Tests.DiffReport.Compare_Cells('TEST10_1 -- Solve Ax = null', null, E_T10);
+
+// Solve xA = null
+
+F_S10 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
+                      1.0, F_LU1, null);
+F_T10 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
+                      1.0, F_LU1, F_S10);
+test_102 :=Tests.DiffReport.Compare_Cells('TEST10_2 -- Solve xA = null', null, F_T10);
+
+// Solve null*x = null;
+E_S10_2 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
+                      1.0, null, null);
+E_T10_2 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
+                      1.0, E_LU1, E_S10_2);
+test_103 := Tests.DiffReport.Compare_Cells('TEST10_3 -- Solve null*x = null', null, E_T10_2);
+
+// Solve x*null = null
+
+F_S10_2 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
+                      1.0, null, null);
+F_T10_2 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
+                      1.0, null, F_S10_2);
+test_104 :=Tests.DiffReport.Compare_Cells('TEST10_4 -- Solve x*null = null', null, F_T10_2);
 
 result  := SORT(test_11 + test_12 + test_13
                + test_21 + test_22 + test_23
@@ -343,7 +379,7 @@ result  := SORT(test_11 + test_12 + test_13
                + test_72 + test_75
                + test_82 + test_85
                + test_91 + test_92 + test_93 + test_94 
-               + test_95 + test_96 + test_97 + test_98, TestName);
-//result := SORT(test_91 + test_92 + test_93 + test_94 + test_95 + test_96 + test_97 + test_98, TestName); //C_S4;
-//result := test_91;
+               + test_95 + test_96 + test_97 + test_98
+               + test_101 + test_102 + test_103 + test_104, TestName);
+
 EXPORT Solve := WHEN(result, override);
