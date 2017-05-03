@@ -105,11 +105,11 @@ EXPORT MatDims := MODULE
     // A record of 3 interlocked matrix dimensions used for e.g. multiply
     dims3 := RECORD
       dimension_t N;
-  	  dimension_t M;
-  	  dimension_t P;
+      dimension_t M;
+      dimension_t P;
       dimension_t PN;
       dimension_t PM;
-  	  dimension_t PP;
+      dimension_t PP;
       Layout_Dims A;
       Layout_Dims B;
       Layout_Dims C;
@@ -145,22 +145,22 @@ EXPORT MatDims := MODULE
         Adims   := IF(EXISTS(children(m_label='A')), children(m_label='A')[1], emptyDim);
         Bdims   := IF(EXISTS(children(m_label='B')), children(m_label='B')[1], emptyDim);
         Cdims   := IF(EXISTS(children(m_label='C')), children(m_label='C')[1], emptyDim);
-    	  N       := MAX([Adims.m_rows, Cdims.m_rows]);
-    	  M       := MAX([Adims.m_cols, Bdims.m_rows]);
-    	  P       := MAX([Bdims.m_cols, Cdims.m_cols]);
-    	  bd      := int.BlockDimensionsMultiply(N, M, P);
-    	  PN      := bd.PN;
-    	  PM      := bd.PM;
-    	  PP      := bd.PP;
-    	  SELF.A  := Adims;
-    	  SELF.B  := Bdims;
-    	  SELF.C  := Cdims;
-    	  SELF.N  := N;
-    	  SELF.M  := M;
-    	  SELF.P  := P;
-    	  SELF.PN := PN;
-    	  SELF.PM := PM;
-    	  SELF.PP := PP;
+        N       := MAX([Adims.m_rows, Cdims.m_rows]);
+        M       := MAX([Adims.m_cols, Bdims.m_rows]);
+        P       := MAX([Bdims.m_cols, Cdims.m_cols]);
+        bd      := int.BlockDimensionsMultiply(N, M, P);
+        PN      := bd.PN;
+        PM      := bd.PM;
+        PP      := bd.PP;
+        SELF.A  := Adims;
+        SELF.B  := Bdims;
+        SELF.C  := Cdims;
+        SELF.N  := N;
+        SELF.M  := M;
+        SELF.P  := P;
+        SELF.PN := PN;
+        SELF.PM := PM;
+        SELF.PP := PP;
       END;
       // Transforms a set of 3 interlocked partitioned dimensions to individual Layout_Dims
       // records

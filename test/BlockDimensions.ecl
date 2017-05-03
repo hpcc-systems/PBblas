@@ -35,6 +35,7 @@ test_cases := DATASET([{5, 5},
                 ], tc_record);
 
 result_rec := RECORD
+  UNSIGNED failed;
   dimension_t N;
   dimension_t M;
   dimension_t PN;
@@ -43,7 +44,6 @@ result_rec := RECORD
   dimension_t BlockCols;
   dimension_t BlockSize;
   UNSIGNED error_type;
-  UNSIGNED failed;
 END;
 
 max_partition_size := 1000;

@@ -25,10 +25,10 @@ override2 := #STORED('BlockDimensions_nodes', nodes_or);
 override := SEQUENTIAL(override1, override2);
 
 
-N1 := 100;
-M1 := 100;
-//N1 := 500;
-//M1 := 200;
+//N1 := 100;
+//M1 := 100;
+N1 := 500;
+M1 := 200;
 mat1 := tm.Matrix(N1, M1, .9, 1);
 mat2 := tm.Matrix(M1, N1, .7, 2);
 mat1_size := N1 * M1;
@@ -98,7 +98,7 @@ pdims4c1 := pdims4c(wi_id = 1)[1];
 errs4_1 := IF(pdims4a1.col_blocks != pdims4b1.row_blocks OR
              pdims4a1.row_blocks != pdims4c1.row_blocks OR
              pdims4b1.col_blocks != pdims4c1.col_blocks, 1, 0);
-test4 := DATASET([{'test4 -- Partitioning for Multiply Op', errs4_1}], test_rec);
+test4 := DATASET([{'test4_1 -- Partitioning for Multiply Op(1)', errs4_1}], test_rec);
 
 // TEST 5 -- Solve_Ax Operation
 pdims5 := md.PartitionedFromDimsForOp(OpType.solve_Ax, adims+bdims);
@@ -106,9 +106,19 @@ pdims5a := pdims5(m_label = 'A');
 pdims5b := pdims5(m_label = 'B');
 pdims5a1 := pdims5a(wi_id = 1)[1];
 pdims5b1 := pdims5b(wi_id = 1)[1];
-errs5_1 := IF(pdims5a1.col_blocks != pdims5a1.row_blocks OR
-             pdims5a1.row_blocks != pdims5b1.row_blocks, 1, 0);
-test5 := DATASET([{'test5 -- Partitioning for Solve_Ax Op', errs5_1}], test_rec);
+Asize51 := pdims5a1.block_rows * pdims5a1.block_cols;
+Bsize51 := pdims5b1.block_rows * pdims5b1.block_cols;
+errs5_1 := IF(pdims5a1.col_blocks != pdims5b1.row_blocks OR
+             pdims5a1.block_cols != pdims5b1.block_rows OR
+             Asize51 > max_part_size_or OR
+             Bsize51 > max_part_size_or, 1, 0);
+test5 := DATASET([{'test5_1 -- Partitioning for Solve_Ax Op(1)', errs5_1,
+                     'row_blocks(A1) = ' + pdims5a1.row_blocks
+                     + ', col_blocks(A1) = ' + pdims5a1.col_blocks
+                     + ', block_rows(A1) = ' + pdims5a1.block_rows
+                     + ', block_cols(A1) = ' + pdims5a1.block_cols
+                     + ', size(A1) = ' + Asize51
+                     + ', size(B1) = ' + Bsize51}], test_rec);
 
 // TEST 6 -- Solve_xA Operation
 pdims6 := md.PartitionedFromDimsForOp(OpType.solve_xA, adims+bdims);
@@ -116,9 +126,13 @@ pdims6a := pdims6(m_label = 'A');
 pdims6b := pdims6(m_label = 'B');
 pdims6a1 := pdims6a(wi_id = 1)[1];
 pdims6b1 := pdims6b(wi_id = 1)[1];
-errs6_1 := IF(pdims6a1.col_blocks != pdims6a1.row_blocks OR
-             pdims6a1.row_blocks != pdims6b1.col_blocks, 1, 0);
-test6 := DATASET([{'test6 -- Partitioning for Solve_aX Op', errs6_1}], test_rec);
+Asize61 := pdims6a1.block_rows * pdims6a1.block_cols;
+Bsize61 := pdims6b1.block_rows * pdims6b1.block_cols;
+errs6_1 := IF(pdims6b1.col_blocks != pdims6a1.row_blocks OR
+             pdims6b1.block_cols != pdims6a1.block_rows OR
+             Asize61 > max_part_size_or OR
+             Bsize61 > max_part_size_or, 1, 0);
+test6 := DATASET([{'test6_1 -- Partitioning for Solve_xA Op', errs6_1}], test_rec);
 
 // TEST 7 -- Symmetric Operation
 pdims7 := md.PartitionedFromDimsForOp(OpType.square, adims);

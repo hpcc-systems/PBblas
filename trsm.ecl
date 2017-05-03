@@ -49,7 +49,14 @@ LeftTerm := 2;
   *              Lower triangle.
   * @param transposeA Boolean indicating whether or not to transpose the A matrix before
   *                   solving
-  * @param diag  Types.Diagonal enumeration indicating whether A is a unit matrix or not 
+  * @param diag  Types.Diagonal enumeration indicating whether A is a unit matrix or not.
+  *              This is primarily used after factoring matrixes using getrf (LU factorization).
+  *              That module produces a factored matrix stored within the same space as the
+  *              original matrix.  Since the diagonal is used by both factors, by convention,
+  *              the Lower triangle has a unit matrix (diagonal all 1's) while the Upper
+  *              triangle uses the diagonal cells.  Setting this to UnitTri, causes the
+  *              contents of the diagonal to be ignored, and assumed to be 1.  NotUnitTri
+  *              should be used for most other cases.
   * @param alpha Multiplier to scale A
   * @param A_in  The A matrix in Layout_Cell format
   * @param B_in  The B matrix in Layout_Cell format
@@ -67,11 +74,17 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
   // Get the basic A matrix dimensions
   a_dims_n := MatDims.FromCells(A_in, 'A');
   a_dims_t := MatDims.TransposeDims(a_dims_n);
+  //  a_dims := ASSERT(IF(transposeA, a_dims_t, a_dims_n), FALSE, m_label + '(' + wi_id + '}: ' +
+  //                 'r,c=' + m_rows + ', ' + m_cols + ' br,bc=' + block_rows + ', ' + block_cols + ' rb, cb = ' + row_blocks + ', ' + col_blocks);
   a_dims := IF(transposeA, a_dims_t, a_dims_n);
   // Get the basic B matrix dims
+  //  b_dims := ASSERT(MatDims.FromCells(B_in, 'B'), FALSE, m_label + '(' + wi_id + '}: ' +
+  //                 'r,c=' + m_rows + ', ' + m_cols + ' br,bc=' + block_rows + ', ' + block_cols + ' rb, cb = ' + row_blocks + ', ' + col_blocks);
   b_dims := MatDims.FromCells(B_in, 'B');
   op_type := IF(s = Side.Ax, OpType.solve_Ax, OpType.solve_xA);
   // Get partitioning schemes for A and B
+  //  part_dims := ASSERT(MatDims.PartitionedFromDimsForOp(op_type, a_dims + b_dims), FALSE, m_label + '(' + wi_id + '}: ' +
+  //                 'r,c=' + m_rows + ', ' + m_cols + ' br,bc=' + block_rows + ', ' + block_cols + ' rb, cb = ' + row_blocks + ', ' + col_blocks);
   part_dims := MatDims.PartitionedFromDimsForOp(op_type, a_dims + b_dims);
   a_part_dims := part_dims(m_label='A');
   b_part_dims := part_dims(m_label='B');
@@ -98,21 +111,20 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
                        LOOKUP) : ONWARNING(4531, IGNORE);
   a_parts_ext := SORTED(a_parts_ext1, partition_id, wi_id);
   // Loop body, by diagonal, right to left for upper and left to right for lower
-  loopBody(DATASET(Layout_Part) parts, UNSIGNED4 loop_c, dimension_t max_a_dim) := FUNCTION
+  loopBody(DATASET(Layout_Part) parts, UNSIGNED4 loop_c, dimension_t max_a_dim,
+                                                  dimension_t max_b_dim) := FUNCTION
     // Process is as follows:
     // - Solve each block at the current row or column position with its diagonal in A
     //   This forms the base (starting point) for the solution
     // - Subtract from the base every earlier solution multiplied by its corresponding 
     //   A coefficient.
-    
     // reverse implies left-to-right for column solutions or bottom-to-top for row solutions
     reverse := IF(tri=Upper, s=Side.Ax, s=Side.xA);
     // rc_pos is the current row or column index.  It runs forward or backward depending
     //  on setting of "reverse" above.
     rc_pos  := IF(reverse, 1 + max_a_dim - loop_c, loop_c);
-    // remaining indicates how many more rows there are to process.
+    // remaining indicates how many more rows or columns there are to process.
     remaining := max_a_dim - loop_c;  // Rows or Columns same
-    
     // Transform to solve each block
     Layout_Part solveBlock(Layout_Part b_rec, Layout_Part a_rec) := TRANSFORM
       b_part_rows := b_rec.part_rows;
@@ -132,8 +144,8 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
                    LEFT.wi_id = RIGHT.wi_id
                    AND ((s=Side.Ax AND LEFT.block_row=RIGHT.block_row)
                    OR (s=Side.xA AND LEFT.block_col=RIGHT.block_col)),
-                   solveBlock(LEFT, RIGHT), LOOKUP) : ONWARNING(4531, IGNORE);
-                   
+                   solveBlock(LEFT, RIGHT), SMART) : ONWARNING(4531, IGNORE);
+
     // Base parts stay in place, just need routing for transform
     Layout_Target prepBase(Layout_Part base) := TRANSFORM
       SELF.t_part_id  := base.partition_id;
@@ -146,7 +158,7 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
     // The blocks at the current rc_pos have been solved.  The rest need to be 
     // updated based on this solution.
     // Solved blocks not in update, loop filter has removed prior solves
-    // Also, when we are going in reverse, we are going to skip any 
+    // Also, when we are going in reverse, we are going to skip any
     // blocks that are lower than the rc_pos.  We don't want to update until
     // after we have processed the first diagonal block.
     parts4update := parts((s=Side.Ax AND block_row <> rc_pos AND (rc_pos <= row_blocks))
@@ -182,8 +194,8 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
       t_col             := IF(s=Side.Ax, repl, inPart.block_col);
       // We need B's row blocks amd col_blocks here, which we couldn't normally 
       // get from A, which is why we extended A to include B's block counts.
-	  b_row_blocks      := inPart.b_row_blocks;
-	  b_col_blocks      := inPart.b_col_blocks;
+      b_row_blocks      := inPart.b_row_blocks;
+      b_col_blocks      := inPart.b_col_blocks;
       // Skip if we're outside our bounds due to use of max_a_dim in the normalize
       valid             := t_row <= b_row_blocks AND t_col <= b_col_blocks;
       t_part            := IF(valid, ((t_col-1) * b_row_blocks) + t_row, SKIP);
@@ -206,7 +218,7 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
                        OR (Lower_Ax AND block_col=rc_pos AND block_row>rc_pos)
                        OR (Upper_xA AND block_row=rc_pos AND block_col>rc_pos)
                        OR (Lower_xA AND block_row=rc_pos AND block_col<rc_pos AND rc_pos <= row_blocks));
-    c0_repl  := NORMALIZE(neededCf, max_a_dim, repPartA(LEFT, COUNTER));
+    c0_repl  := NORMALIZE(neededCf, max_b_dim, repPartA(LEFT, COUNTER));
     replCoef := SORT(DISTRIBUTE(c0_repl, t_node_id), t_part_id, wi_id, LOCAL);
 
     // Transform to multiply each solved block by its A coefficient and subract from
@@ -267,7 +279,6 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
     // ReplSolv has the earlier solve to be multiplied by the corresponding A coefficients.
     // and subtracted from the base
     // ReplCoef has the A coefficients to be multiplied with the previous solved blocks.
-//    inpSet := MERGE(need_upd, replCoef, replSolv, SORTED(t_part_id, wi_id), LOCAL);
     inpSet := MERGE(need_upd, replCoef, replSolv, SORTED(t_part_id, wi_id), LOCAL);
     // For each non-solved partition-id, multiply each A coefficient and its 
     // corresponding solved
@@ -284,14 +295,18 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
     RETURN rslt;
   END;  // loopBody
   // Maximum dimension of A for all work-items
-  max_a_dim := MAX(a_part_dims, a_part_dims.row_blocks); 
+  max_a_dim := MAX(a_part_dims, a_part_dims.row_blocks);
+  max_b_rows := MAX(b_part_dims, b_part_dims.row_blocks);
+  max_b_cols := MAX(b_part_dims, b_part_dims.col_blocks);
+  // The max dimension of B's unique dimension (i.e. the one not shared with A)
+  max_b_dim := IF(s=Side.Ax, max_b_cols, max_b_rows);
 
   // Run the solver
   // Each loop runs one row or column of the solution.  The four variants are:
-  // Lower_Ax -- LX = B : Down  -- Solve rows of X from top to bottom
-  // Lower_xA -- XL = B : Left  -- Solve columns of X from right to left
-  // Upper_Ax -- UX = B : Up    -- Solve rows of X from bottom to top
-  // Upper_xA -- XU = B : Right -- Solve columns of X from left to right
+  // Lower_Ax -- LX = B : Down  -- Solve rows of A from top to bottom
+  // Lower_xA -- XL = B : Left  -- Solve columns of A from right to left
+  // Upper_Ax -- UX = B : Up    -- Solve rows of A from bottom to top
+  // Upper_xA -- XU = B : Right -- Solve columns of A from left to right
   // where L := A is a Lower triangular matrix and U := A is a Upper triangular
   // matrix.  X is the result being solved for.
   // Since A and B may contain many separate matrixes (via myriad interface), use
@@ -302,7 +317,7 @@ EXPORT DATASET(Layout_Cell) trsm(Side s, Triangle tri, BOOLEAN transposeA, Diago
           (Lower_Ax AND LEFT.block_row >= COUNTER) OR
           (Upper_xA AND LEFT.block_col >= COUNTER) OR
           (Lower_xA AND LEFT.block_col <= 1 + max_a_dim - COUNTER),
-          loopBody(ROWS(LEFT), COUNTER, max_a_dim));
+          loopBody(ROWS(LEFT), COUNTER, max_a_dim, max_b_dim));
   // Convert from partitions back to cells
   x_cells := Converted.FromParts(x_parts);
   return x_cells;

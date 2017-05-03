@@ -22,7 +22,7 @@ N := 1000;
 M := 10;
 
 // Create a random matrix
-A := tm.Random(N, M, 1.0, 1);
+A := tm.RandomMatrix(N, M, 1.0, 1);
 
 // Convert to numeric field dataset
 DN := conv.MatrixToNF(A);

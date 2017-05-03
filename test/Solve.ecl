@@ -33,10 +33,10 @@ override := #STORED('BlockDimensions_max_partition_size', max_partition_size_or)
 N1 := 9;  // 9 x 9  should give a single partition
 M1 := 9;
 
-PreA1 := tm.Random(N1, N1, 1.0, 1);
+PreA1 := tm.RandomMatrix(N1, N1, 1.0, 1);
 A1 := PBblas.gemm(TRUE, FALSE, 1.0,
              PreA1, PreA1);    // Make a positive definite symmetric matrix of full rank
-X1 := tm.Random(N1, M1, 1.0, 1);
+X1 := tm.RandomMatrix(N1, M1, 1.0, 1);
 // Calculate the transpose of X to use for XA testing
 X1_T := MatUtils.Transpose(X1);
 // E computes the B value for AX (i.e. AX).  Solving for AX = E should return X
@@ -78,8 +78,10 @@ test_13:=Tests.DiffReport.Compare_Cells('TEST01_3 -- xA Single, LU', X1_T, F_T1)
 // Use a matrix size large enough, and max_partition_size small enough so that substantial
 // partitioning occurs.
 // 
+//N2 := 51;   // 51 should give A 4 partitions (2 x 2)
+//M2 := 67;
 N2 := 51;   // 51 should give A 4 partitions (2 x 2)
-M2 := 67;
+M2 := 167;
 
 PreA2 := tm.RandomPersist(N2, N2, 1.0, 2, 'PA2');
 A2 := PBblas.gemm(TRUE, FALSE, 1.0,
@@ -104,7 +106,7 @@ E_S2 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
                       1.0, E_LU2, E2);
 E_T2 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU2, E_S2);
-test_22 := Tests.DiffReport.Compare_Cells('TEST02_1 -- Ax 2 x 2, LU', X2, E_T2);
+test_22 := Tests.DiffReport.Compare_Cells('TEST02_2 -- Ax 2 x 2, LU', X2, E_T2);
 //
 F_LU2:= E_LU2;
 F_S2 := PBblas.trsm(Side.xA, Upper, FALSE, Diagonal.NotUnitTri,
@@ -135,7 +137,7 @@ E_S3 := PBblas.trsm(Side.Ax, Lower, FALSE, Diagonal.UnitTri,
 E_T3 := PBblas.trsm(Side.Ax, Upper, FALSE, Diagonal.NotUnitTri,
                       1.0, E_LU3, E_S3);
 E_T3_1 := E_T3(wi_id = 1);
-E_T3_2 := E_T3(wi_id = 2);                      
+E_T3_2 := E_T3(wi_id = 2);
 test_33 := Tests.DiffReport.Compare_Cells('TEST03_3 -- Ax Partitioned+Myr(2)_1, LU', X1, E_T3_1);
 test_34 := Tests.DiffReport.Compare_Cells('TEST03_4 -- Ax Partitioned+Myr(2)_2, LU', X2, E_T3_2);
 //
@@ -149,12 +151,12 @@ F_T3_2 := F_T3(wi_id = 2);
 test_35 := Tests.DiffReport.Compare_Cells('TEST03_5 -- xA Partitioned+Myr(2)_1, LU', X1_T, F_T3_1);
 test_36 := Tests.DiffReport.Compare_Cells('TEST03_6 -- xA Partitioned+Myr(2)_2, LU', X2_T, F_T3_2);
 
-// TEST 4 -- Larger 3 x 3 matrix
+// TEST 4 -- Larger matrix with B larger than A
 N4 := 71;  // Should give us 9 A partitions (3 x 3)
-M4 := 70;
+M4 := 137;
 
 // Make A sparse (30%) to mix it up
-PreA4 := tm.Random(N4, N4, .3, 4);
+PreA4 := tm.RandomMatrix(N4, N4, .3, 4);
 A4 := PBblas.gemm(TRUE, FALSE, 1.0,
              PreA4, PreA4);    // Make a positive definite symmetric matrix of full rank
 X4 := tm.Matrix(N4, M4, 1.0, 4);
@@ -285,7 +287,7 @@ blas_S1 := BLAS.dtrsm(Side.Ax, Lower, transA, Diagonal.UnitTri,
                                   M5,
                                   N5,
                                   1/alpha, LU5_set, E5_set);
-                                  
+
 blas_S2 := BLAS.dtrsm(Side.Ax, Upper, transA, Diagonal.NotUnitTri,
                                   N5,
                                   M5,
@@ -315,7 +317,7 @@ blas_S1_2 := BLAS.dtrsm(Side.xA, Upper, transA, Diagonal.NotUnitTri,
                                   N5,
                                   N5,
                                   1/alpha, LU5_set, F5_set);
-                                  
+
 blas_S2_2 := BLAS.dtrsm(Side.xA, Lower, transA, Diagonal.UnitTri,
                                   M5,
                                   N5,
@@ -370,7 +372,8 @@ F_T10_2 := PBblas.trsm(Side.xA, Lower, FALSE, Diagonal.UnitTri,
                       1.0, null, F_S10_2);
 test_104 :=Tests.DiffReport.Compare_Cells('TEST10_4 -- Solve x*null = null', null, F_T10_2);
 
-result  := SORT(test_11 + test_12 + test_13
+result  := SORT(
+                 test_11 + test_12 + test_13
                + test_21 + test_22 + test_23
                + test_31 + test_32 + test_33 + test_34 + test_35 + test_36
                + test_41 + test_42
@@ -380,6 +383,7 @@ result  := SORT(test_11 + test_12 + test_13
                + test_82 + test_85
                + test_91 + test_92 + test_93 + test_94 
                + test_95 + test_96 + test_97 + test_98
-               + test_101 + test_102 + test_103 + test_104, TestName);
+               + test_101 + test_102 + test_103 + test_104
+               , TestName);
 
 EXPORT Solve := WHEN(result, override);

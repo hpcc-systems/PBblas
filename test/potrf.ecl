@@ -20,7 +20,7 @@ override := #STORED('BlockDimensions_max_partition_size', max_partition_size_or)
 N1 := 8;
 M1 := 10;
 
-preA1 := tm.Random(N1, M1, 1.0, 1);
+preA1 := tm.RandomMatrix(N1, M1, 1.0, 1);
 
 A1 := PBblas.gemm(FALSE, TRUE, 1.0, preA1, preA1);
 
@@ -41,7 +41,7 @@ test14 := dr.Compare_Cells('TEST1 -- Cholesky U1tL1t', A1, U1tL1t);
 N2 := 50;
 M2 := 70;
 
-preA2 := tm.Random(N2, M2, 1.0, 2);
+preA2 := tm.RandomMatrix(N2, M2, 1.0, 2);
 
 A2 := PBblas.gemm(FALSE, TRUE, 1.0, preA2, preA2);
 

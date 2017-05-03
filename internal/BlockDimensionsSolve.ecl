@@ -11,7 +11,7 @@ dimension_t := Types.dimension_t;
 /**
 * Auto-Partitioning for Solve operations
 *
-* Given an input of N and M, describing the dimensions of A (N x N), B (N x M) or (M x N) 
+* Given an input of N and M, describing the dimensions of A (N x N), B (N x M) or (M x N)
 * matrixes, calculate the optimal square (d x d) partitioning for A and rectangular
 * partitioning for B.  Calculate the partition matrix dimensions: PN and PM representing the
 * dimensions of the partition
@@ -26,19 +26,19 @@ dimension_t := Types.dimension_t;
 * Note: These constraints are in priority order.  (1) should always be met.  Others are best effort.
 * Note: This module is used internally to PBblas, and should not be needed by users of PBblas
 *
-* @param N		The Row and Column dimension of the A matrix and either the Row or Column 
+* @param N    The Row and Column dimension of the A matrix and either the Row or Column
 *                dimension of B (depending on the type of solve).
-* @param M		The Column or Row dimension of B (depending on the type of 
+* @param M    The Column or Row dimension of B (depending on the type of
 *                solve)
 * @param max_part_size_or Overrides the largest allowed partition size.
 *                For advanced use only.
 * @param nodes_or For testing only.  Overrides the number of nodes in the cluster.
 *                          Should never be used in production.
-* @see			Std/PBblas/BlockDimensions
+* @see      Std/PBblas/BlockDimensions
 */
-EXPORT BlockDimensionsSolve(dimension_t N, dimension_t M, 
-	  max_part_size_or=0, nodes_or=0) := MODULE
-  // Maximum partition size to generate (allows override via STORE or via 
+EXPORT BlockDimensionsSolve(dimension_t N, dimension_t M,
+    max_part_size_or=0, nodes_or=0) := MODULE
+  // Maximum partition size to generate (allows override via STORE or via
   // parameter for testing)
   stored_max_part_size := 1000000 : STORED('BlockDimensions_max_partition_size');
   SHARED max_part_size := IF(max_part_size_or > 0, max_part_size_or, stored_max_part_size);
@@ -52,9 +52,9 @@ EXPORT BlockDimensionsSolve(dimension_t N, dimension_t M,
   A_block_dim := bd.PN; // PN and PM will always be the same because scheme will always be square.
   SHARED PN0 := A_block_dim;
   // Calculate PM such that B partitions are smaller than max_partition_size
-  min_PM := ROUNDUP(b_cells/max_part_size/PN0);
-  max_PM := ROUNDUP((b_cells+min_PM*N) / max_part_size / PN0);
-	SHARED PM0 := IF((b_cells / PN0) % min_PM = 0, min_PM, max_PM);
+  min_PM := MAX(ROUNDUP(b_cells/max_part_size/PN0), 1);
+  max_PM := MAX(ROUNDUP((b_cells+min_PM*N) / max_part_size / PN0), 1);
+  SHARED PM0 := IF((b_cells / PN0) % min_PM = 0, min_PM, max_PM);
 
   /**
     * The row and column dimension of A's partition matrix and either row or column of B's
@@ -72,7 +72,7 @@ EXPORT BlockDimensionsSolve(dimension_t N, dimension_t M,
   EXPORT AblockDim := ROUNDUP(N/PN);
   /**
     * The number of rows or columns in each partition of B and X (result) depending
-    * on the type of solve (see module description). 
+    * on the type of solve (see module description).
     */
   EXPORT BblockDim := ROUNDUP(M/PM);
-END; 
+END;
