@@ -53,6 +53,7 @@ EXPORT BlockDimensionsMultiply(dimension_t N, dimension_t M, dimension_t P,
     PN := row_blocks;
     PM := col_blocks;
     // Calculate PP such that both B and C matrixes have partition sizes smaller than max_partition_size
+    // Don't allow zero dimensions.
     min_PP := ROUNDUP(MAX([b_cells/max_part_size/PM, c_cells/max_part_size/PN, 1]));
     max_PP := ROUNDUP(MAX([(b_cells+min_PP*M) / max_part_size / PM, (c_cells+min_PP*N) / max_part_size / PN,1]));
 	PP := IF((b_cells / PM) % min_PP = 0 AND (c_cells / PN) % min_PP = 0, min_PP, max_PP);
@@ -67,9 +68,10 @@ EXPORT BlockDimensionsMultiply(dimension_t N, dimension_t M, dimension_t P,
     PM := row_blocks;
     PP := col_blocks;
     // Calculate PN such that both A and C matrixes have partition sizes smaller than max_partition_size
-    min_PN := ROUNDUP(MAX([a_cells/max_part_size/PM, c_cells/max_part_size/PP], 1));
+    // Don't allow zero dimensions.
+    min_PN := ROUNDUP(MAX([a_cells/max_part_size/PM, c_cells/max_part_size/PP, 1]));
     max_PN := ROUNDUP(MAX([(a_cells+min_PN*M) / max_part_size / PM, (c_cells + min_PN*P) / max_part_size / PP,1]));
-	PN := IF((a_cells / PM) % min_PN = 0 AND (b_cells / PP) % min_PN = 0, min_PN, max_PN);
+    PN := IF((a_cells / PM) % min_PN = 0 AND (b_cells / PP) % min_PN = 0, min_PN, max_PN);
     results := [PN, PM, PP];
     return results;
   END;
@@ -83,7 +85,7 @@ EXPORT BlockDimensionsMultiply(dimension_t N, dimension_t M, dimension_t P,
     // Calculate PM such that both A and B matrixes have partition sizes smaller than max_partition_size
     min_PM := ROUNDUP(MAX([a_cells/max_part_size/PN, b_cells/max_part_size/PP,1]));
     max_PM := ROUNDUP(MAX([(a_cells + min_PM*N) / max_part_size/ PN, (b_cells + min_PM*P) / max_part_size / PP,1]));
-	PM := IF((a_cells / PN) % min_PM = 0 AND (b_cells / PP) % min_PM = 0, min_PM, max_PM);
+    PM := IF((a_cells / PN) % min_PM = 0 AND (b_cells / PP) % min_PM = 0, min_PM, max_PM);
     results := [PN, PM, PP];
     return results;
   END;

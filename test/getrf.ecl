@@ -24,7 +24,7 @@ N1 := 9;
 M1 := 9;
 
 // Create a test matrix
-preA1 := tm.Random(N1, M1, 1.0, 1);
+preA1 := tm.RandomMatrix(N1, M1, 1.0, 1);
 
 // Multiply A**T * A to create square matrix
 A1 := PBblas.gemm(FALSE, TRUE, 1.0, preA1, preA1);
@@ -45,7 +45,7 @@ test1 := dr.Compare_Cells('TEST1 -- LU L1U1', A1, cmp1);
 N2 := 40;
 M2 := 40;
 
-preA2 := tm.Random(N2, M2, 1.0, 2);
+preA2 := tm.RandomMatrix(N2, M2, 1.0, 2);
 
 // Make square
 A2 := PBblas.gemm(FALSE, TRUE, 1.0, preA2, preA2);
@@ -84,7 +84,7 @@ test3_2 := dr.Compare_Cells('TEST3_2 -- LU Partitioned+Myriad A1+A2-2', A2, cmp3
 //A4 -- Large, Prime dimensions, uneven partition sizes
 N4 := 87;
 M4 := 31;
-preA4 := tm.Random(N4, M4, 1.0, 4);
+preA4 := tm.RandomMatrix(N4, M4, 1.0, 4);
 
 // Make square
 A4 := PBblas.gemm(FALSE, TRUE, 1.0, preA4, preA4);

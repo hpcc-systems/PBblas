@@ -2,8 +2,11 @@
 ## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
 ############################################################################## */
 /**
-  * Performance test for multiplication.  Performs a large myriad multiply
-  * operation to observer performance.
+  * Performance test for multiplication.  Performs a large multiply
+  * operation to observer performance.  Data is staged by MultiplyPerfPrep.ecl
+  * which should always be run before this test.  Test size is controlled by
+  * passing test_size as a STORED parameter e.g. via eclcc -X<test_size>.  See
+  * test_size below.
   */
 
 IMPORT $.^ as PBblas;
@@ -17,33 +20,26 @@ IMPORT Tests.MakeTestMatrix as tm;
 Layout_Cell := Types.Layout_Cell;
 Layout_Part := iTypes.Layout_Part;
 
-// Test configuration Parameters -- modify these to vary the testing
+// Test size is 1 (small), 2 (medium) or 3 (large)
+UNSIGNED test_size := 1 : STORED('test_size'); // default is "small"
 
-N := 100000;   // Number of rows in A matrix and result
-M := 10000;      // Number of columns in A matrix and rows in B matrix
-P := 10000; // Number of columns in B matrix and result
+A_s := DATASET('MultiplyPerf_A_s.dat', Layout_Cell, FLAT);
+A_m := DATASET('MultiplyPerf_A_m.dat', Layout_Cell, FLAT);
+A_l := DATASET('MultiplyPerf_A_l.dat', Layout_Cell, FLAT);
 
-density := 1.0; // 1.0 is fully dense. 0.0 is empty.
-// End of config parameters
+B_s := DATASET('MultiplyPerf_B_s.dat', Layout_Cell, FLAT);
+B_m := DATASET('MultiplyPerf_B_m.dat', Layout_Cell, FLAT);
+B_l := DATASET('MultiplyPerf_B_l.dat', Layout_Cell, FLAT);
 
-// Generate test data for A and B matrixes in the cell form
+A_cells := MAP(test_size = 1 => A_s, test_size = 2 => A_m, A_l);
+B_cells := MAP(test_size = 1 => B_s, test_size = 2 => B_m, B_l);
 
-// Setup to make calls to PB_dgemm
-a_dat1 := tm.MatrixPersist(N, M, density, 1, 'A1');
-a_dat2 :=  tm.MatrixPersist(M, N, density, 2, 'A2');
-b_dat1 := tm.MatrixPersist(M, P, density, 1, 'B1');
-b_dat2 :=  tm.MatrixPersist(N, P, density, 2, 'B2');
-a_dat := a_dat1 + a_dat2;
-b_dat := b_dat2 + b_dat1;
-//a_dat := a_dat1;
-//b_dat := b_dat1;
-a_cells := DISTRIBUTE(a_dat);
-b_cells := DISTRIBUTE(b_dat);
+// Setup to make calls to gemm
 
 // Make an empty C matrix
 c_cells := DATASET([], Layout_Cell);
 
-cell_results := PBblas.gemm(FALSE, False, 1.0, a_cells, b_cells);
+cell_results := PBblas.gemm(FALSE, False, 1.0, A_cells, B_cells);
 
 EXPORT MultiplyPerf := COUNT(cell_results);
 

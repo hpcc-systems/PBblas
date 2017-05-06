@@ -44,7 +44,7 @@ EXPORT BlockDimensions(dimension_t N, dimension_t M,
   nodes_stored := Thorlib.nodes() : STORED('BlockDimensions_nodes');
   SHARED nodes := IF(nodes_override > 0, nodes_override, nodes_stored);
   // Partition size below which to use a single partition (allows override via STORE for testing)
-  SHARED single_partition_size := 100 : STORED('BlockDimensions_single_partition_size');
+  SHARED single_partition_size := max_partition_size / 10 : STORED('BlockDimensions_single_partition_size');
   // Function to round up a dimension to the nearest number of nodes
   SHARED dimension_t round_up_to_nodes(dimension_t d) := FUNCTION
     dimension_t rounded := IF(d % nodes > 0, d  + (nodes - d % nodes), d);

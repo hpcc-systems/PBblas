@@ -9,6 +9,7 @@ IMPORT int.Types as iTypes;
 
 
 max_block := 1000000;
+min_block := 100000;
 
 test_rec := {UNSIGNED N, UNSIGNED M, UNSIGNED P};
 UNSIGNED nodes := 1;
@@ -61,6 +62,9 @@ END;
 
 DATASET(ext_test_rec) test_cases_ext := JOIN(test_cases, node_counts, TRUE, extend_test_cases(LEFT, RIGHT), ALL);
 result_rec := {
+  String status,
+  UNSIGNED berror,
+  STRING error_text,
   UNSIGNED nodes,
   UNSIGNED N,
   UNSIGNED M,
@@ -76,10 +80,8 @@ result_rec := {
   UNSIGNED a_parts,
   UNSIGNED b_parts,
   UNSIGNED c_parts, 
-  UNSIGNED partitions,
-  UNSIGNED berror,
-  STRING error_text,
-  String status};
+  UNSIGNED partitions
+  };
 
 result_rec do_tests(ext_test_rec r) := TRANSFORM
   b := int.BlockDimensionsMultiply(r.N, r.M, r.P, max_block, r.nodes);
@@ -105,9 +107,9 @@ result_rec do_tests(ext_test_rec r) := TRANSFORM
     IF(SELF.a_block_size > max_block OR SELF.b_block_size > max_block OR SELF.c_block_size > max_block, 4,
       IF(SELF.PN > SELF.N OR SELF.PM > SELF.M OR SELF.PP > SELF.P, 3,
         IF(SELF.a_parts % SELF.nodes != 0 OR SELF.b_parts % SELF.nodes != 0 OR SELF.c_parts % SELF.nodes != 0, 2, 
-          IF(SELF.a_block_size < 1 OR SELF.b_block_size < 1 OR SELF.c_block_size < 1, 1, 0)))));
+          IF(SELF.a_block_size < min_block OR SELF.b_block_size < min_block OR SELF.c_block_size < min_block, 1, 0)))));
   SELF.error_text := CASE(SELF.berror, 0 => 'None', 5 => 'Partition has zero dimension', 4 => 'Partition size too large', 3 => 'Partition size > cells',
-    2 => 'Couldn\'t use all nodes', 1 => 'Partition size too small', 'Unknown');
+    2 => 'Couldn\'t balance across nodes', 1 => 'Partition size too small', 'Unknown');
   SELF.status := IF(self.berror > 3, 'FAIL', 'SUCCESS');
 END;
 
@@ -133,6 +135,6 @@ EXPORT BlockDimensionsMultiply := result_data;
 // 5:  Zero block dimension -- one of the block dimensions is zero which is invalid
 // 4:  Failed to meet constraint 1 -- maximum partition size.  This should be considered a failure and should never happen
 // 3:  Failed to meet constraint 2 -- no empty partitions.  This should rarely happen and is not a failure.
-// 2:  Failed to meet constraint 3 -- use all nodes.  This will commonly occur with small matrixes.
+// 2:  Failed to meet constraint 3 -- Couldn't balance across nodes.  This will commonly occur with small matrixes or large node count.
 // 1:  Failed to meet constraint 4 -- minimum partition size.  This will occasionally occur.
 // 0:  All constraints met -- the best case.

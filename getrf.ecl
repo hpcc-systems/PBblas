@@ -34,7 +34,7 @@ Term := ENUM(UNSIGNED1, LeftTerm=1, RghtTerm=2, BaseTerm=3);
   * column of blocks with M-1 rows.  A22 is a sub-matrix of M-1 x N-1 blocks.
   *   | A11   A12 |      |  L11   0   |    | U11        U12    |
   *   | A21   A22 |  ==  |  L21   L22 | *  |  0         U22    |
-  * 
+  *
   *                      | L11*U11             L11*U12         |
   *                  ==  | L21*U11         L21*U12 + L22*U22   |
   *
@@ -49,23 +49,31 @@ Term := ENUM(UNSIGNED1, LeftTerm=1, RghtTerm=2, BaseTerm=3);
   *        This matrix can be used directly by trsm which will only use
   *        the part indicated by trsm's 'triangle' parameter (i.e. upper
   *        or lower).  To extract the upper or lower triangle explicitly
-  *        for other purposes, use the ExtractTri function.
+  *        for other purposes, use the ExtractTri function.  When passing
+  *        the Lower matrix to the triangle solver (trsm), set the
+  *        "Diagonal" parameter to "UnitTri".  This is necessary because
+  *        both triangular matrixes returned from this function are packed
+  *        into a square matrix with only one diagonal.  By convention,
+  *        The Lower triangle is assumed to be a Unit Triangle (diagonal
+  *        all ones), so the diagonal contained in the returned matrix
+  *        is for the Upper factor and must be ignored (i.e. assumed to
+  *        be all ones) when referencing the Lower triangle.
   *
   * @param A    The input matrix in Types.Layout_Cell format
   * @return     Resulting factored matrix in Layout_Cell format
   * @see        Types.Layout_Cell
-  * @see		ExtractTri
+  * @see    ExtractTri
   */
 EXPORT DATASET(Layout_Cell) getrf(DATASET(Layout_Cell) A) := FUNCTION
   nodes := Thorlib.nodes();
   // Loop body
-  loopBody(DATASET(Layout_Part) parts, UNSIGNED4 rc_pos, 
+  loopBody(DATASET(Layout_Part) parts, UNSIGNED4 rc_pos,
       dimension_t max_row_blocks, dimension_t max_col_blocks) := FUNCTION
     // Select diagonal block, use dgetf2 in PROJECT to produce L11 and U11
     A_11 := parts(block_row=rc_pos AND block_col=rc_pos);
-    
+
     // Transform to factor a single block
-    Layout_Part factorBlock(Layout_Part part) := TRANSFORM    
+    Layout_Part factorBlock(Layout_Part part) := TRANSFORM
       m := part.part_rows;
       n := part.part_cols;
       // dgetf2 throws error if factoring fails
@@ -85,12 +93,12 @@ EXPORT DATASET(Layout_Cell) getrf(DATASET(Layout_Cell) A) := FUNCTION
       SELF := a_part;
     END;
     // Generate L21 and U12 by dividing by the corner block L11
-    newRow := JOIN(parts(block_col>rc_pos), newCorner,
+    newRow := JOIN(parts(block_col>rc_pos AND block_row=rc_pos), newCorner,
                    LEFT.block_row=RIGHT.block_row AND LEFT.wi_id = RIGHT.wi_id,
-                   divide(LEFT, RIGHT), LOOKUP);
-    newCol := JOIN(parts(block_row>rc_pos), newCorner,
+                   divide(LEFT, RIGHT), SMART);
+    newCol := JOIN(parts(block_row>rc_pos AND block_col = rc_pos), newCorner,
                    LEFT.block_col=RIGHT.block_col AND LEFT.wi_id = RIGHT.wi_id,
-                   divide(LEFT, RIGHT), LOOKUP);
+                   divide(LEFT, RIGHT), SMART);
     // Outer row and column updated.  Now update the sub-matrix.
     Layout_Target stamp(Layout_Part p, dimension_t tr, dimension_t tc, Term trm) := TRANSFORM
       t_part := (tc-1) * p.row_blocks + tr;
@@ -170,7 +178,7 @@ EXPORT DATASET(Layout_Cell) getrf(DATASET(Layout_Cell) A) := FUNCTION
     rslt := SORT(rslt1, partition_id, wi_id, LOCAL);
     RETURN rslt;
   END; // loop Body
-  
+
   // Get the dimensions of the matrix
   a_dims := MatDims.FromCells(A);
   // Caclulate partition dimensions
@@ -184,8 +192,8 @@ EXPORT DATASET(Layout_Cell) getrf(DATASET(Layout_Cell) A) := FUNCTION
   factorParts := LOOP(a_sorted, MIN(max_row_blocks, max_col_blocks),
                       COUNTER<=LEFT.block_row AND COUNTER<=LEFT.block_col,
                       loopBody(ROWS(LEFT), COUNTER, max_row_blocks, max_col_blocks));
- 
-  // Sort the results                     
+
+  // Sort the results
   parts_rslt := SORT(factorParts, partition_id, wi_id, LOCAL);
   // Convert back to cells
   rslt := int.Converted.FromParts(parts_rslt);
