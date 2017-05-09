@@ -41,10 +41,10 @@ override := #STORED('BlockDimensions_max_partition_size', max_partition_size_or)
 N1 := 59;  // 9 x 9  should give a single partition
 M1 := 67;
 
-PreA1 := tm.Random(N1, N1, 1.0, 1);
+PreA1 := tm.RandomMatrix(N1, N1, 1.0, 1);
 A1 := PBblas.gemm(TRUE, FALSE, 1.0,
              PreA1, PreA1);    // Make a positive definite symmetric matrix of full rank
-X1 := tm.Random(N1, M1, 1.0, 1);
+X1 := tm.RandomMatrix(N1, M1, 1.0, 1);
 // Calculate the transpose of X to use for XA testing
 X1_T := MatUtils.Transpose(X1);
 // E computes the B value for AX (i.e. AX).  Solving for AX = E should return X
