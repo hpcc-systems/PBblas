@@ -18,7 +18,7 @@ IMPORT PBblas.MatUtils;
 IMPORT PBblas.Types;
 IMPORT int.Types as iTypes;
 IMPORT Std.BLAS;
-IMPORT ^.test as Tests;
+IMPORT $.^.test as Tests;
 IMPORT Tests.MakeTestMatrix as tm;
 
 matrix_t := iTypes.matrix_t;
