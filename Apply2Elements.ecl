@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -12,15 +12,15 @@ IElementFunc := PBblas.IElementFunc;
 dim_t := PBblas.Types.dimension_t;
 
 /**
-  * Apply a function to each element of the matrix
+  * Apply a user-defined function to each element of the matrix.
   *
-  * Use PBblas.IElementFunc as the prototype function.
-  * Input and ouput may be a single matrix, or myriad matrixes with
+  * <p>Use PBblas.IElementFunc as the prototype function.
+  * Input and output may be a single matrix, or myriad matrixes with
   * different work item ids.
   * 
-  * @param X       A matrix (or multiple matrices) in Layout_Cell form
-  * @param f       A function based on the IElementFunc prototype
-  * @return        A matrix (or multiple matrices) in Layout_Cell form
+  * @param X       A matrix (or multiple matrices) in Layout_Cell form.
+  * @param f       A function based on the IElementFunc prototype.
+  * @return        A matrix (or multiple matrices) in Layout_Cell form.
   * @see           PBblas/IElementFunc
   * @see           PBblas/Types.Layout_Cell
   */

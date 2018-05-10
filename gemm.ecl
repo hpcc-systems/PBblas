@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -24,43 +24,43 @@ wi_id_list := RECORD
   work_item_t wi_id;
 END;
 /**
-  * Extended Parallel Block Matrix Multiplication Module
+  * Extended Parallel Block Matrix Multiplication Module.
   *
-  * Implements: Result <- alpha * op(A)op(B) + beta * C.  op is No Transpose or Transpose.
+  * <p>Implements: Result <- alpha * op(A)op(B) + beta * C.  op is No Transpose or Transpose.
   *
-  * Multiplies two matrixes A and B, with an optional pre-multiply transpose for each
-  * Optionally scales the product by the scalar "alpha".
-  * Then adds an optional C matrix to the product after scaling C by the scalar "beta".
+  * <p>Multiplies two matrixes A and B, with an optional pre-multiply transpose for each.
+  * <p>Optionally scales the product by the scalar "alpha".
+  * <p>Then adds an optional C matrix to the product after scaling C by the scalar "beta".
   *
-  * A, B, and C are specified as DATASET(Layout_Cell), as is the Resulting matrix.
+  * <p>A, B, and C are specified as DATASET(Layout_Cell), as is the Resulting matrix.
   * Layout_Cell describes a sparse matrix stored as a list of x, y, and value.
   *
-  * This interface also provides a "Myriad" capability allowing multiple similar
+  * <p>This interface also provides a "Myriad" capability allowing multiple similar
   * operations to be performed on independent sets of matrixes in parallel.
   * This is done by use of the work-item id (wi_id) in each cell of the matrixes.
-  * Cells with the same wi_id are considered part of the same matrix.
-  * In the myriad form, each input matrix A, B, and (optionally) C can contain many
+  * <p>Cells with the same wi_id are considered part of the same matrix.
+  * <p>In the myriad form, each input matrix A, B, and (optionally) C can contain many
   * independent matrixes. The wi_ids are matched up such that each operation involves
   * the A, B, and C with the same wi_id.  A and B must therefore contain the same set
   * of wi_ids, while C is optional for any wi_id.  The same parameters: alpha, beta,
   * transposeA, and transposeB are used for all work-items.
-  * The result will contain cells from all provided work-items.
+  * <p>The result will contain cells from all provided work-items.
   *
-  * Result has same shape as C if provided.  Note that matrixes are not explicitly
+  * <p>Result has same shape as C if provided.  Note that matrixes are not explicitly
   * dimensioned.  The shape is determined by the highest value of x and y for each
   * work-item.
   *
-  * @param transposeA    Boolean indicating whether matrix A should be transposed
-  *               before multiplying
-  * @param transposeB    Same as above but for matrix B
-  * @param alpha      Scalar multiplier for alpha * A * B
-  * @param A_in        'A' matrix (multiplier) in Layout_Cell format
-  * @param B_in        Same as above for the 'B' matrix (multiplicand)
-  * @param C_in        Same as above for the 'C' matrix (addend). May be omitted.
-  * @param beta        A scalar multiplier for beta * C, scales the C matrix before
+  * @param transposeA Boolean indicating whether matrix A should be transposed
+  *               before multiplying.
+  * @param transposeB Same as above but for matrix B.
+  * @param alpha Scaling factor for the A matrix.
+  * @param A_in 'A' matrix (multiplier) in Layout_Cell format.
+  * @param B_in Same as above for the 'B' matrix (multiplicand).
+  * @param C_in Same as above for the 'C' matrix (addend). May be omitted.
+  * @param beta A scalar multiplier for beta * C, scales the C matrix before
   *               addition. May be omitted.
-  * @return                 Result matrix in Layout_Cell format.
-  * @see                    PBblas/Types.Layout_Cell
+  * @return Result matrix in Layout_Cell format.
+  * @see PBblas/Types.Layout_Cell
   */
 EXPORT DATASET(Layout_Cell) gemm(BOOLEAN transposeA, BOOLEAN transposeB,
         value_t alpha,
@@ -248,7 +248,6 @@ EXPORT DATASET(Layout_Cell) gemm(BOOLEAN transposeA, BOOLEAN transposeB,
   // Function to sum all the parts that share the same result partition
   Layout_Part sumTerms(Layout_Part cumm, Layout_Part term) := TRANSFORM
     N := cumm.part_rows * cumm.part_cols;
-//    N := map_c.part_rows(cumm.partition_id) * map_c.part_cols(cumm.partition_id);
     SELF.mat_part := BLAS.daxpy(N, 1.0, cumm.mat_part, 1, term.mat_part, 1);
     SELF := cumm;
   END;
@@ -310,12 +309,6 @@ EXPORT DATASET(Layout_Cell) gemm(BOOLEAN transposeA, BOOLEAN transposeB,
   rslt_parts_IP := ROLLUP(sorted_terms_IP, sumTerms(LEFT,RIGHT), wi_id, partition_id, LOCAL);
   // END of Inner Product Section
 
-
-  /**
-    * The result matrix in cell form (i.e. Layout_Cell)
-    *
-    * @see  Std/PBblas/Types.Layout_Cell
-    */
   // Return result for normal work-items plus inner-product work-items
   rslt := int.Converted.FromParts(rslt_parts & rslt_parts_IP);
   RETURN rslt;

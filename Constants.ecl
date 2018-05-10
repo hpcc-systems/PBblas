@@ -1,7 +1,11 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 // Constants used in PB BLAS
+/**
+  * Constant defaults for PBblas
+  * @internal
+  */
 EXPORT Constants := MODULE
   EXPORT Block_Minimum := 100000;   // minimum cells in a block
   EXPORT Block_NoSplit := 200000;   // minimum to split into blocks

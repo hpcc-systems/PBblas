@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -22,9 +22,14 @@ iTypes.matrix_t empty_mat := [];
 dimension_t := Types.dimension_t;
 
 /**
-  * Implements Cholesky factorization of A = U**T * U if Triangular.Upper requested
+  * Produce a Cholesky factorization of a matrix.
+  * <p>Cholesky factorization of A such that A = U**T * U if Triangular.Upper requested
   * or A = L * L**T if Triangualr.Lower is requested.
-  * The matrix A must be symmetric positive definite.
+  * <p>Note that the Cholesky factorization in Linear Algebra is analogous to a square-root
+  * in scalar algebra.
+  *
+  * <p>The matrix A must be symmetric positive definite.
+  * <pre>
   *  | A11   A12 |      |  L11   0   |    | L11**T     L21**T |
   *  | A21   A22 |  ==  |  L21   L22 | *  |  0           L22  |
   *
@@ -34,19 +39,20 @@ dimension_t := Types.dimension_t;
   * So, use Cholesky on the first block to get L11.
   *     L21 = A21*L11**T**-1   which can be found by dtrsm on each column block
   *     A22' is A22 - L21*L21**T
-  * Based upon PB-BLAS: A set of parallel block basic linear algebra subprograms
+  * </pre>
+  * <p>Based upon PB-BLAS: A set of parallel block basic linear algebra subprograms
   * by Choi and Dongarra
   *
-  * This module supports the "Myriad" style interface, allowing many independent problems
+  * <p>This module supports the "Myriad" style interface, allowing many independent problems
   * to be worked on at once.  The A matrix can contain multiple matrixes to be factored,
   * indicated by different values for work-item id (wi_id).  
   *
   * @param tri  Types.Triangle enumeration indicating whether we are looking for the Upper
-  *             or the Lower factor
-  * @param A_in The matrix or matrixes to be factored in Types.Layout_Cell format
-  * @return     Triangular matrix in Layout_Cell format
-  * @see Std.PBblas.Types.Layout_Cell
-  * @see Std.PBblas.Types.Triangle
+  *             or the Lower factor.
+  * @param A_in The matrix or matrixes to be factored in Types.Layout_Cell format.
+  * @return     Triangular matrix in Layout_Cell format.
+  * @see Types.Layout_Cell
+  * @see Types.Triangle
   *
   */
 EXPORT DATASET(Layout_Cell) potrf(Triangle tri, DATASET(Layout_Cell) A_in) := FUNCTION
