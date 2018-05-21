@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -29,17 +29,17 @@ LeftTerm := 2;
 /**
   * Partitioned block parallel triangular matrix solver.
   *
-  * Solves for X using: AX = B or XA = B
-  * A is is a square triangular matrix, X and B have the same dimensions.
-  * A may be an upper triangular matrix (UX = B or XU = B), or a lower
+  * <p>Solves for X using: AX = B or XA = B.
+  * <p>A is is a triangular matrix, X and B have the same dimensions.
+  * <p>A may be an upper triangular matrix (UX = B or XU = B), or a lower
   * triangular matrix (LX = B or XL = B).
-  * Allows optional transposing and scaling of A.
-  * Partially based upon an approach discussed by MJ DAYDE, IS DUFF, AP CERFACS.
+  * <p>Allows optional transposing and scaling of A.
+  * <p>Partially based upon an approach discussed by MJ DAYDE, IS DUFF, AP CERFACS.
   * A Parallel Block implementation of Level-3 BLAS for MIMD Vector Processors
   * ACM Tran. Mathematical Software, Vol 20, No 2, June 1994 pp 178-193
-  * and other papers about PB-BLAS by Choi and Dongarra
+  * and other papers about PB-BLAS by Choi and Dongarra.
   *
-  * This module supports the "Myriad" style interface, allowing many independent problems
+  * <p>This module supports the "Myriad" style interface, allowing many independent problems
   * to be worked on at once.  Corresponding A and B matrixes are related by a common
   * work-item identifier (wi_id) within each cell of the matrix.  The returned X matrix
   * will contain cells for the same set of work-items as specified for the A and B matrices.
@@ -48,7 +48,7 @@ LeftTerm := 2;
   * @param tri   Types.Triangle enumeration indicating whether we are solving an Upper or
   *              Lower triangle.
   * @param transposeA Boolean indicating whether or not to transpose the A matrix before
-  *                   solving
+  *                   solving.
   * @param diag  Types.Diagonal enumeration indicating whether A is a unit matrix or not.
   *              This is primarily used after factoring matrixes using getrf (LU factorization).
   *              That module produces a factored matrix stored within the same space as the
@@ -57,10 +57,10 @@ LeftTerm := 2;
   *              triangle uses the diagonal cells.  Setting this to UnitTri, causes the
   *              contents of the diagonal to be ignored, and assumed to be 1.  NotUnitTri
   *              should be used for most other cases.
-  * @param alpha Multiplier to scale A
-  * @param A_in  The A matrix in Layout_Cell format
-  * @param B_in  The B matrix in Layout_Cell format
-  * @return      X solution matrix in Layout_Cell format
+  * @param alpha Multiplier to scale A.
+  * @param A_in  The A matrix in Layout_Cell format.
+  * @param B_in  The B matrix in Layout_Cell format.
+  * @return      X solution matrix in Layout_Cell format.
   * @see         Types.Layout_Cell
   * @see         Types.Triangle
   * @see         Types.Side

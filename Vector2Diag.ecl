@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -15,15 +15,15 @@ Layout_Dims := iTypes.Layout_Dims;
 value_t := Types.value_t;
 dimension_t := PBblas.Types.dimension_t;
 /**
-  * Convert a vector into a diagonal matrix.  
-  * The typical notation is D = diag(V).
-  * The input X must be a 1 x N column vector or an N x 1 row vector.
-  * The resulting matrix, in either case will be N x N, with zero everywhere
+  * Convert a vector into a diagonal matrix.
+  * <p>The typical notation is D = diag(V).
+  * <p>The input X must be a 1 x N column vector or an N x 1 row vector.
+  * <p>The resulting matrix, in either case will be N x N, with zero everywhere
   * except the diagonal.
   *
-  * @param X  A row or column vector (i.e. N x 1 or 1 x N) in Layout_Cell format
-  * @return   An N x N matrix in Layout_Cell format
-  * @see      PBblas/Types.Layout_cell
+  * @param X  A row or column vector (i.e. N x 1 or 1 x N) in Layout_Cell format.
+  * @return   An N x N matrix in Layout_Cell format.
+  * @see      Types.Layout_cell
   */
 EXPORT DATASET(Layout_Cell)
        Vector2Diag(DATASET(Layout_Cell) X):= FUNCTION

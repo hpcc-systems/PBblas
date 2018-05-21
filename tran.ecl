@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -18,15 +18,16 @@ value_t := Types.value_t;
 OpType := iTypes.OpType;
 empty_c := DATASET([], Layout_Cell);
 /**
-  *  Transpose a matrix and sum into base matrix
-  *   result <== alpha * A**t  + beta * C, A is n by m, C is m by n
-  *   A**T (A Transpose)  and C must have same shape
-  *  @param alpha  Scalar multiplier for the A**T matrix
-  *  @param A      A matrix in DATASET(Layout_Cell) form
-  *  @param beta   Scalar multiplier for the C matrix
-  *  @param C      C matrix in DATASET(Layout_Call) form
-  *  @return	   Matrix in DATASET(Layout_Cell) form alpha * A**T + beta * C
-  *  @see		   PBblas/Types.layout_cell
+  *  Transpose a matrix and (optionally) add a second matrix.
+  *  <p>Implements: result <== alpha * A**t  + beta * C, A is n by m, C is m by n
+  *  <p>A**T (A Transpose)  and C must have same shape.
+  *
+  *  @param alpha  Scalar multiplier for the A**T matrix.
+  *  @param A      A matrix in DATASET(Layout_Cell) form.
+  *  @param beta   (Optional) Scalar multiplier for the C matrix.
+  *  @param C      (Optional) C matrix in DATASET(Layout_Call) form.
+  *  @return Resulting matrix in DATASET(Layout_Cell) form.
+  *  @see Types.layout_cell
   */
   EXPORT DATASET(Layout_Cell)
       tran(value_t alpha, DATASET(Layout_Cell) A, value_t beta=0, 

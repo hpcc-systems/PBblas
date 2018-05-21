@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -17,12 +17,12 @@ work_item_t := Types.work_item_t;
 OpType := iTypes.OpType;
 
 /**
-  * Absolute sum -- the "Entrywise" 1-norm
+  * Calculate the absolute sum -- the "Entrywise" 1-norm of a matrix.
   *
-  * Compute SUM(ABS(X))
+  * <p>Compute SUM(ABS(X)).
   *
-  * @param X    Matrix or set of matrices in Layout_Cell format
-  * @return     DATASET(Layout_Norm) with one record per work item
+  * @param X    Matrix or set of matrices in Layout_Cell format.
+  * @return     DATASET(Layout_Norm) with one record per work item.
   * @see        PBblas/Types.Layout_Cell
   */
 EXPORT DATASET(Layout_Norm) asum(DATASET(Layout_Cell) X) := FUNCTION

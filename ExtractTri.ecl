@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 IMPORT $ as PBblas;
 IMPORT Std.BLAS;
@@ -19,12 +19,12 @@ Diagonal := Types.Diagonal;
   *  Extract the upper or lower triangle from the composite output from 
   *  getrf (LU Factorization).
   *
-  *  @param tri    Triangle type:  Upper or Lower (see Types.Triangle)
-  *  @param dt     Diagonal type:  Unit or non unit (see Types.Diagonal)
-  *  @param A      Matrix of cells. See Types.Layout_Cell
+  *  @param tri    Triangle type:  Upper or Lower (see Types.Triangle).
+  *  @param dt     Diagonal type:  Unit or non unit (see Types.Diagonal).
+  *  @param A      Matrix of cells. See Types.Layout_Cell.
   *  @return       Matrix of cells in Layout_Cell format representing
-  *                a triangular matrix (upper or lower)
-  *  @see          Std.PBblas.Types
+  *                a triangular matrix (upper or lower).
+  *  @see          PBblas.Types
   */
 EXPORT DATASET(Layout_Cell) ExtractTri(Triangle tri, Diagonal dt,
                       DATASET(Layout_Cell) A) := FUNCTION

@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
 ############################################################################## */
 
 IMPORT $ as PBblas;
@@ -23,29 +23,30 @@ dimension_t := Types.dimension_t;
 Term := ENUM(UNSIGNED1, LeftTerm=1, RghtTerm=2, BaseTerm=3);
 
 /**
-  * LU Factorization
+  * Perform LU Factoriztion of a Matrix.
   *
-  * Splits a matrix into Lower and Upper triangular factors
+  * <p>Splits a matrix into Lower and Upper triangular factors
   *
-  * Produces composite LU matrix for the diagonal
-  * blocks.  Iterates through the matrix a row of blocks and column of blocks at
+  * <p>Produces composite LU matrix for the diagonal
+  * blocks.  <p>Iterate through the matrix a row of blocks and column of blocks at
   * a time.  Partition A into M block rows and N block columns.  The A11 cell is a
   * single block.  A12 is a single row of blocks with N-1 columns.  A21 is a single
   * column of blocks with M-1 rows.  A22 is a sub-matrix of M-1 x N-1 blocks.
+  * <pre>
   *   | A11   A12 |      |  L11   0   |    | U11        U12    |
   *   | A21   A22 |  ==  |  L21   L22 | *  |  0         U22    |
   *
   *                      | L11*U11             L11*U12         |
   *                  ==  | L21*U11         L21*U12 + L22*U22   |
-  *
-  * Based upon PB-BLAS: A set of parallel block basic linear algebra subprograms
+  * </pre>
+  * <p>Based upon PB-BLAS: A set of parallel block basic linear algebra subprograms
   * by Choi and Dongarra
   *
-  * This module supports the "Myriad" style interface, allowing many independent problems
+  * <p>This module supports the "Myriad" style interface, allowing many independent problems
   * to be worked on at once.  The A matrix can contain multiple matrixes to be factored,
   * indicated by different values for work-item id (wi_id).
   *
-  * Note:  The returned matrix includes both the upper and lower factors.
+  * <p>Note:  The returned matrix includes both the upper and lower factors.
   *        This matrix can be used directly by trsm which will only use
   *        the part indicated by trsm's 'triangle' parameter (i.e. upper
   *        or lower).  To extract the upper or lower triangle explicitly
@@ -59,10 +60,10 @@ Term := ENUM(UNSIGNED1, LeftTerm=1, RghtTerm=2, BaseTerm=3);
   *        is for the Upper factor and must be ignored (i.e. assumed to
   *        be all ones) when referencing the Lower triangle.
   *
-  * @param A    The input matrix in Types.Layout_Cell format
-  * @return     Resulting factored matrix in Layout_Cell format
-  * @see        Types.Layout_Cell
-  * @see    ExtractTri
+  * @param A The input matrix in Types.Layout_Cell format.
+  * @return Resulting factored matrix in Layout_Cell format.
+  * @see Types.Layout_Cell
+  * @see ExtractTri
   */
 EXPORT DATASET(Layout_Cell) getrf(DATASET(Layout_Cell) A) := FUNCTION
   nodes := Thorlib.nodes();
