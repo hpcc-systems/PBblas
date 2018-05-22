@@ -26,16 +26,13 @@ EXPORT SET OF REAL8 makeR8Set(dimension_t r, dimension_t s,
                               DATASET(Layout_Cell) D,
                               BOOLEAN transpose=FALSE) := BEGINC++
     // copy of Layout_Cell translated to C
-    #ifndef pbb_cell
-        typedef struct __attribute__ ((__packed__)) {
-          uint16_t wi_id;
-          uint32_t x;
-          uint32_t y;
-          double v;
-          } pbb_cell;
-    #endif // pbb_cell    #ifndef pbb_cell
+    struct __attribute__ ((__packed__)) pbb_cell{
+      uint16_t wi_id;
+      uint32_t x;
+      uint32_t y;
+      double v;
+      };
 
-    #body
     __lenResult = r * s * sizeof(double);
     __isAllResult = false;
     double* result = (double*) rtlMalloc(__lenResult);
