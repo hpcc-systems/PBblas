@@ -26,7 +26,7 @@ END;
 /**
   * Extended Parallel Block Matrix Multiplication Module.
   *
-  * <p>Implements: Result <- alpha * op(A)op(B) + beta * C.  op is No Transpose or Transpose.
+  * <p>Implements: alpha * op(A) * op(B) + beta * C.  op is No Transpose or Transpose.
   *
   * <p>Multiplies two matrixes A and B, with an optional pre-multiply transpose for each.
   * <p>Optionally scales the product by the scalar "alpha".
