@@ -16,12 +16,12 @@ v1_test := PBblas.vec.From(len, val);
 test_from := PBblas.test.DiffReport.Compare_Cells('TEST -- From -- len 4 val 5', v1, v1_test);
 //OUTPUT(test_from, NAMED('test_from'));
 
-
+// Note: Matrix is sparse, so only non-zero cells returned
 m1 := DATASET([
-              {1, 1, 1, 5.3}, {1, 1, 2, 0}, {1, 1, 3, 0}, {1, 1, 4, 0},
-              {1, 2, 1, 0}, {1, 2, 2, 5.3}, {1, 2, 3, 0}, {1, 2, 4, 0},
-              {1, 3, 1, 0}, {1, 3, 2, 0}, {1, 3, 3, 5.3}, {1, 3, 4, 0},
-              {1, 4, 1, 0}, {1, 4, 2, 0}, {1, 4, 3, 0}, {1, 4, 4, 5.3}], 
+              {1, 1, 1, 5.3},
+              {1, 2, 2, 5.3},
+              {1, 3, 3, 5.3},
+              {1, 4, 4, 5.3}], 
               PBblas.Types.Layout_Cell);
 v2_test := PBblas.vec.Todiag(PBblas.vec.From(len, val));
 //OUTPUT(v2_test, NAMED('v2_test'));
@@ -96,5 +96,4 @@ test_norm := IF(norm_val = v8_test, 1, 0);
 
 rslt := SORT(test_from + test_todiag + test_fromdiag + test_fromcol
       + test_fromrow + test_tocol, TestName);
-//OUTPUT(rslt, NAMED('rslt'));
-EXPORT vec := rslt;
+OUTPUT(rslt, NAMED('rslt'));

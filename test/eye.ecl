@@ -13,5 +13,4 @@ dim := 4;
 iden_4_test := PBblas.eye(dim);
 //OUTPUT(iden_4_test);
 test_iden := PBblas.test.DiffReport.Compare_Cells('TEST -- Eye -- dim 4', iden_4, iden_4_test);
-//OUTPUT(test_iden, NAMED('test'));
-EXPORT eye := test_iden;
+OUTPUT(test_iden, NAMED('test'));
