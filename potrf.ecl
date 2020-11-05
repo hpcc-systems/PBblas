@@ -58,7 +58,8 @@ dimension_t := Types.dimension_t;
 EXPORT DATASET(Layout_Cell) potrf(Triangle tri, DATASET(Layout_Cell) A_in) := FUNCTION
   nodes := Thorlib.nodes();
   // LOOP body
-  loopBody(DATASET(Layout_Part) parts, UNSIGNED4 rc_pos, dimension_t max_a_dim) := FUNCTION
+  loopBody(DATASET(Layout_Part) _parts, UNSIGNED4 rc_pos, dimension_t max_a_dim) := FUNCTION
+    parts := SORTED(_parts, partition_id, wi_id);
     // Select diagonal block, use dpotf2 in PROJECT to produce L11 or U11
     A_11 := SORTED(parts(block_row=rc_pos AND block_col=rc_pos), partition_id, wi_id);
     Layout_Part factorBlock(Layout_Part part) := TRANSFORM
