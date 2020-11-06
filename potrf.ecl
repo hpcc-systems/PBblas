@@ -146,7 +146,7 @@ EXPORT DATASET(Layout_Cell) potrf(Triangle tri, DATASET(Layout_Cell) A_in) := FU
       idA_part_rows     := idA_proto.part_rows;
       idA_part_cols     := idA_proto.part_cols;
       inside            := IF(tri=Upper, idA_part_rows, idA_part_cols);
-      SELF.partition_id := part_id;
+      SELF.partition_id := lr.t_part_id;
       SELF.node_id      := (HASH32(lr.wi_id) + part_id-1) % nodes;
       SELF.block_row    := lr.t_block_row;
       SELF.block_col    := lr.t_block_col;
