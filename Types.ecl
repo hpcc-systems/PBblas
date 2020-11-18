@@ -1,5 +1,5 @@
 /*############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2020 HPCC Systems.  All rights reserved.
 ############################################################################## */
 IMPORT ML_Core;
 IMPORT ML_Core.Types as MlTypes;
@@ -105,10 +105,10 @@ EXPORT Types := MODULE
     *
     */
   EXPORT Layout_Cell  := RECORD
-    work_item_t	wi_id:=1;  // 1 based work-item number
+    work_item_t wi_id:=1;  // 1 based work-item number
     dimension_t x;         // 1 based index position for row
     dimension_t y;         // 1 based index position for column
-    value_t     v;	       // Value for cell
+    value_t     v;       // Value for cell
   END;
 
   /**
@@ -116,10 +116,20 @@ EXPORT Types := MODULE
     *
     * @field wi_id  Work Item Number -- An identifier from 1 to 64K-1 that
     *                 separates and identifies individual matrixes
-    * @field v	    Real value for the norm
+    * @field v      Real value for the norm
     */
   EXPORT Layout_Norm := RECORD
     work_item_t wi_id;     // 1 based work-item number
     value_t     v;         // Norm value for work item
+  END;
+  /**
+    * Extended layout for handling multiple Layout_cell matrices
+    *
+    * @field mat_id  Matrix id -- An identifier from 1 to 64K-1 that
+    *                 separates and identifies individual matrices even 
+                      if the matrices have same wi_id
+    */
+  EXPORT Layout_Cell_ext := RECORD(Layout_Cell)
+    t_mu_no mat_id; // The number of the matrix within the universe
   END;
 END;
