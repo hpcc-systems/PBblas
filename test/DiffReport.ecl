@@ -1,5 +1,5 @@
 /*##############################################################################
-## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systems®.  All rights reserved.
+## HPCC SYSTEMS software Copyright (C) 2016 HPCC Systemsï¿½.  All rights reserved.
 ############################################################################## */
 // Difference report for testing
 IMPORT $.^ as PBblas;
@@ -10,7 +10,7 @@ dimension_t := Types.dimension_t;
 value_t     := Types.value_t;
 Layout_Cell := Types.Layout_Cell;
 Layout_Part := iTypes.Layout_Part;
-Epsilon := 0.000001;
+Epsilon := 0.01;
 
 EXPORT DiffReport := MODULE
   EXPORT Text_Diff_Missing      := 'Missing';
